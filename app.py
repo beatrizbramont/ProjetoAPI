@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-
+from models import modelAluno, modelProfessor, modelTurma
 dici = {
     "alunos": [
         {
@@ -120,16 +120,37 @@ def getAluno():
     dados = dici['alunos']
     return jsonify(dados)
 
+@app.route('/alunos/<int: id_aluno>', methods=['GET'])
+def aluno_Id(id_aluno):
+    try:
+        modelAluno.aluno_porID(id_aluno)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route("/professor", methods=['GET'])
 def getProfessor():
     dados = dici['professor']
     return jsonify(dados)
 
+@app.route('/professor/<int: id_professor>', methods=['GET'])
+def professor_Id(id_professor):
+    try:
+        modelProfessor.professor_porID(id_professor)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
 @app.route('/turma', methods=['GET'])
 def getTurma():
     dados = dici['turma']
     return jsonify (dados)
 
+@app.route('/turma/<int: id_turma>', methods=['GET'])
+def turma_Id(id_turma):
+    try:
+        modelTurma.turma_porID(id_turma)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
 # PUT (UPDATE)
 @app.route("/alunos/<int:idAluno>", methods=['PUT'])
 def updateAlunos(idAluno):
