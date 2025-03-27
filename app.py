@@ -66,7 +66,8 @@ def createAluno():
         
 
         # dados['id'] = max([aluno['id'] for aluno in dici["alunos"]]) + 1 if dici["alunos"] else 1
-        dici['alunos'].append(dados)
+        # dici['alunos'].append(dados)
+        modelAluno.createAluno(dados)
         return jsonify(dados), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -120,12 +121,13 @@ def getAluno():
     dados = dici['alunos']
     return jsonify(dados)
 
-@app.route('/alunos/<int: id_aluno>', methods=['GET'])
+@app.route('/alunos/<int: idAluno>', methods=['GET'])
 def aluno_Id(id_aluno):
     try:
-        modelAluno.aluno_porID(id_aluno)
+        modelAluno.alunoPorID(id_aluno)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
 
 @app.route("/professor", methods=['GET'])
 def getProfessor():
@@ -138,6 +140,7 @@ def professor_Id(id_professor):
         modelProfessor.professor_porID(id_professor)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
     
 @app.route('/turma', methods=['GET'])
 def getTurma():
@@ -170,7 +173,7 @@ def updateAlunos(idAluno):
             return duplicacao
         
         dados = request.json
-        aluno.update(dados)
+        modelAluno.updateAluno(idAluno, dados)
         return jsonify(aluno)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -225,12 +228,14 @@ def updateTurma(idTurma):
 #DELETE
 @app.route('/alunos/<int:idAluno>', methods=['DELETE'])
 def delete_aluno(idAluno):
-    alunos = dici["alunos"]
-    for indice,aluno in enumerate(alunos):
-           if aluno.get('id') == idAluno:
-            del alunos[indice]
-            return jsonify("Aluno excluído com sucesso", alunos), 200
-    return ("Aluno não encontrado"), 404
+    modelAluno.deleteAluno(idAluno) 
+    if modelAluno.deleteAluno() == True:
+        return jsonify("Aluno excluído com sucesso"), 200
+    
+    else:
+        return ("Aluno não encontrado"), 404
+    
+    
     
         
 @app.route('/professor/<int:idProfessor>', methods=['DELETE'])
