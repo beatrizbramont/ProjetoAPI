@@ -1,4 +1,3 @@
-from app import verificar_campo_null, verificar_duplicacao
 dici = {
     "alunos": [
         {
@@ -14,24 +13,39 @@ dici = {
     ]
 }
 
-def createAluno(dados):
-        
-    vazio = verificar_campo_null(dados)
-    if vazio:
-        return vazio, 400
-
-        
-    turma_existente = next((turma for turma in dici["turma"] if turma["id"] == dados["turma_id"]), None)
-    if not turma_existente:
-        return ({"error": "Turma não encontrada."}), 404 
-
-    duplicacao = verificar_duplicacao(dados['id'], dici["alunos"], "Aluno")
-    if duplicacao:
-        return duplicacao
+# Create
+def createAluno(dados):    
     dici['alunos'].append(dados)
-    return(dados), 201
+    return True
 
+# Get      
+def todosAlunos():
+    return dici['alunos']
+    
+def alunoPorID(idAluno):
+    lista_alunos = dici['alunos']
+    for aluno in lista_alunos:
+        if aluno['id'] == idAluno:
+            return aluno
+    return False
 
-def aluno_porID(id_aluno):
-    return id_aluno
+# Put
+def updateAluno(idAluno, dados):
+    aluno = alunoPorID(idAluno)
+    if aluno:
+        aluno.update(dados)
+        return aluno
+    
+    return False
 
+# Delete
+def deleteAluno(idAluno):
+    aluno = alunoPorID(idAluno)
+    if aluno:
+        dici['alunos'].remove(aluno)
+        return True
+    
+    return False
+    
+            
+    
