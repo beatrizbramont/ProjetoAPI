@@ -63,12 +63,10 @@ def createAluno():
         duplicacao = verificar_duplicacao(dados['id'], dici["alunos"], "Aluno")
         if duplicacao:
             return duplicacao
-        
-
-        # dados['id'] = max([aluno['id'] for aluno in dici["alunos"]]) + 1 if dici["alunos"] else 1
-        # dici['alunos'].append(dados)
+             
         modelAluno.createAluno(dados)
         return jsonify(dados), 201
+    
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -76,7 +74,6 @@ def createAluno():
 def createProfessores():
     try:
         dados = request.json
-        # dados['id'] = max([professor['id'] for professor in dici["professor"]]) + 1 if dici["professor"] else 1
 
         vazio = verificar_campo_null(dados)
         if vazio:
@@ -86,9 +83,9 @@ def createProfessores():
         if duplicacao:
             return duplicacao
         
-        dici['professor'].append(dados)
-        
+        modelProfessor.createProfessores(dados)          
         return jsonify(dados), 201
+    
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -112,15 +109,18 @@ def createTurma():
         # dados['id'] = max([turma['id'] for turma in dici["turma"]]) + 1 if dici["turma"] else 1
         dici['turma'].append(dados)
         return jsonify(dados), 201
+        
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# GET (READ)
+# GET (READ) - ALUNO
 @app.route('/alunos', methods=['GET'])
 def getAluno():
-    dados = dici['alunos']
-    return jsonify(dados)
-
+    try:
+        return modelAluno.todosAlunos()
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
 @app.route('/alunos/<int: idAluno>', methods=['GET'])
 def aluno_Id(id_aluno):
     try:
@@ -128,12 +128,14 @@ def aluno_Id(id_aluno):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-
+# GET (READ) - PROFESSOR
 @app.route("/professor", methods=['GET'])
 def getProfessor():
-    dados = dici['professor']
-    return jsonify(dados)
-
+    try:
+        return modelProfessor.todosProfessores()
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
 @app.route('/professor/<int: id_professor>', methods=['GET'])
 def professor_Id(id_professor):
     try:
@@ -141,7 +143,7 @@ def professor_Id(id_professor):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-    
+# GET (READ) - TURMA    
 @app.route('/turma', methods=['GET'])
 def getTurma():
     dados = dici['turma']
@@ -172,9 +174,9 @@ def updateAlunos(idAluno):
         if duplicacao:
             return duplicacao
         
-        dados = request.json
         modelAluno.updateAluno(idAluno, dados)
         return jsonify(aluno)
+    
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -195,9 +197,9 @@ def updateProfessores(idProfessor):
         if duplicacao:
             return duplicacao
         
-        
-        professor.update(dados)
+        modelProfessor.updateProfessor(idProfessor, dados)
         return jsonify(professor)
+    
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -240,13 +242,13 @@ def delete_aluno(idAluno):
         
 @app.route('/professor/<int:idProfessor>', methods=['DELETE'])
 def delete_professor(idProfessor):
-    professores = dici["professor"]
-    for indice,professor in enumerate(professores):
-        if professor.get('id') == idProfessor:
-            del professores[indice]
-            return jsonify ("Deu certo", professor), 200
-    return jsonify("Professor não encontrado"), 404
-
+    modelProfessor.deleteProfessor(idProfessor) 
+    if modelProfessor.deleteProfessor() == True:
+        return jsonify("Professor excluído com sucesso"), 200
+    
+    else:
+        return ("Professor não encontrado"), 404
+    
 
 @app.route('/turma/<int:idTurma>', methods=['DELETE'])
 def delete_turma(idTurma):
