@@ -106,8 +106,9 @@ def createTurma():
         if duplicacao:
             return duplicacao
 
-        # dados['id'] = max([turma['id'] for turma in dici["turma"]]) + 1 if dici["turma"] else 1
-        dici['turma'].append(dados)
+        #dados['id'] = max([turma['id'] for turma in dici["turma"]]) + 1 if dici["turma"] else 1
+        
+        modelTurma.createTurma(dados)
         return jsonify(dados), 201
         
     except Exception as e:
@@ -146,8 +147,11 @@ def professor_Id(id_professor):
 # GET (READ) - TURMA    
 @app.route('/turma', methods=['GET'])
 def getTurma():
-    dados = dici['turma']
-    return jsonify (dados)
+    try: 
+        return modelTurma.todasTumas() 
+    #dados = dici['turma']
+    except Exception as e:
+        return jsonify ({"error": str(e)}), 500
 
 @app.route('/turma/<int: id_turma>', methods=['GET'])
 def turma_Id(id_turma):
@@ -221,8 +225,11 @@ def updateTurma(idTurma):
             return duplicacao
         
         
-        turma.update(dados)
+        #turma.update(dados)
+        modelTurma.updateTurma(idTurma, dados)
         return jsonify(turma)
+
+    
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -252,12 +259,12 @@ def delete_professor(idProfessor):
 
 @app.route('/turma/<int:idTurma>', methods=['DELETE'])
 def delete_turma(idTurma):
-    turmas = dici["turma"]
-    for indice,turma in enumerate(turmas):
-        if turma.get('id') == idTurma:
-            del turmas[indice]
-            return("Turma excluida com sucesso"), 200
-    return ("Turma não encontrada"), 404
+    modelTurma.delete_turma(idTurma)
+    if modelTurma.delete_turma() == True:
+        return jsonify({"Turma excluída com sucesso."}), 200
+    else:
+        return jsonify({"Turma não encontrada."}), 404
+
 
 
 if __name__ == '__main__':
