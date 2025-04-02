@@ -12,5 +12,35 @@ dici = {
 }
 
 
+# CREATE
+def createTurma(dados):
+    dici['turma'].append(dados)
+    return True
+
+# GET 
+def todasTurmas():
+    return dici['turma']
+ 
 def turma_porID(id_turma):
-    return id_turma
+    lista_turmas = dici['turma']
+    for turma in lista_turmas:
+        if turma['id'] == id_turma:
+            return turma
+    return False
+
+# UPDATE 
+def updateTurma(id_turma, dados):
+    turma = turma_porID(id_turma)
+    if turma:
+        turma.update(dados)
+        return turma
+    return False
+
+# DELETE 
+def deleteTurma(id_turma):
+    turma = turma_porID(id_turma)
+    if turma:
+        dici['turma'].remove(turma)
+        return True
+    return False
+
