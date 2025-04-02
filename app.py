@@ -105,8 +105,6 @@ def createTurma():
         duplicacao = verificar_duplicacao(dados['id'], dici["turma"], "Turma")
         if duplicacao:
             return duplicacao
-
-        #dados['id'] = max([turma['id'] for turma in dici["turma"]]) + 1 if dici["turma"] else 1
         
         modelTurma.createTurma(dados)
         return jsonify(dados), 201
@@ -148,15 +146,14 @@ def professor_Id(id_professor):
 @app.route('/turma', methods=['GET'])
 def getTurma():
     try: 
-        return modelTurma.todasTumas() 
-    #dados = dici['turma']
+        return modelTurma.todasTurmas() 
     except Exception as e:
         return jsonify ({"error": str(e)}), 500
 
 @app.route('/turma/<int: id_turma>', methods=['GET'])
 def turma_Id(id_turma):
     try:
-        modelTurma.turma_porID(id_turma)
+        modelTurma.turmaPorID(id_turma)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
@@ -225,7 +222,6 @@ def updateTurma(idTurma):
             return duplicacao
         
         
-        #turma.update(dados)
         modelTurma.updateTurma(idTurma, dados)
         return jsonify(turma)
 
@@ -259,8 +255,8 @@ def delete_professor(idProfessor):
 
 @app.route('/turma/<int:idTurma>', methods=['DELETE'])
 def delete_turma(idTurma):
-    modelTurma.delete_turma(idTurma)
-    if modelTurma.delete_turma() == True:
+    modelTurma.deleteTurma(idTurma)
+    if modelTurma.deleteTurma() == True:
         return jsonify({"Turma excluída com sucesso."}), 200
     else:
         return jsonify({"Turma não encontrada."}), 404
