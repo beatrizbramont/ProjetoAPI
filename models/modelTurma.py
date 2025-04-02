@@ -21,26 +21,28 @@ def createTurma(dados):
 def todasTurmas():
     return dici['turma']
  
-def turma_porID(id_turma):
+def turmaPorID(idTurma):
     lista_turmas = dici['turma']
     for turma in lista_turmas:
-        if turma['id'] == id_turma:
+        if turma['id'] == idTurma:
             return turma
+        
     return False
 
 # UPDATE 
-def updateTurma(id_turma, dados):
-    turma = turma_porID(id_turma)
+def updateTurma(idTurma, dados):
+    turma = turmaPorID(idTurma)
     if turma:
         turma.update(dados)
         return turma
     return False
 
 # DELETE 
-def deleteTurma(id_turma):
-    turma = turma_porID(id_turma)
+def deleteTurma(idTurma):
+    turma = turmaPorID(idTurma)
     if turma:
         dici['turma'].remove(turma)
         return True
+    
     return False
 
