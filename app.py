@@ -1,68 +1,14 @@
 from flask import Flask, jsonify, request
 from models import modelAluno, modelProfessor, modelTurma
-dici = {
-    "alunos": [
-        {
-            "id": 1,
-            "nome": "Nome do aluno",
-            "idade": 0,
-            "data_nascimento": "Data de nascimento",
-            "nota_primeiro_semestre": 0,
-            "nota_segundo_semestre": 0,
-            "media_final": 0,
-            "turma_id": 1
-        }
-    ],
-    "professor": [
-        {
-            "id": 1,
-            "nome": "Nome do professor",
-            "idade": 0,
-            "materia": "Nome da materia",
-            "observacoes": "Observacao sobre o professor"
-        }
-    ],
-    "turma": [
-        {
-            "id": 1,
-            "descricao": "Descriçaõ da turma",
-            "professor_id": 1,
-            "ativo": "Status"
-        }
-    ]
-}
 
 app = Flask(__name__)
 
-def verificar_duplicacao(id, lista, tipo):
-    if any(item['id'] == id for item in lista):
-        return jsonify({"error": f"{tipo} com ID {id} já existe."}), 400
-    return None
 
-def verificar_campo_null(dados):
-    for chave, valor in dados.items():
-        if valor == None:
-            return jsonify({"error": "O campo " + chave + " informado é obrigatório."})
-        
 # POST (CREATE)
 @app.route('/alunos', methods=['POST'])
 def createAluno():
     try:
         dados = request.json
-        
-        vazio = verificar_campo_null(dados)
-        if vazio:
-            return vazio, 400
-
-        
-        turma_existente = next((turma for turma in dici["turma"] if turma["id"] == dados["turma_id"]), None)
-        if not turma_existente:
-            return jsonify({"error": "Turma não encontrada."}), 404
-        
-        
-        duplicacao = verificar_duplicacao(dados['id'], dici["alunos"], "Aluno")
-        if duplicacao:
-            return duplicacao
              
         modelAluno.createAluno(dados)
         return jsonify(dados), 201
@@ -75,14 +21,6 @@ def createProfessores():
     try:
         dados = request.json
 
-        vazio = verificar_campo_null(dados)
-        if vazio:
-            return vazio, 400
-        
-        duplicacao = verificar_duplicacao(dados['id'], dici["professor"], "Professor")
-        if duplicacao:
-            return duplicacao
-        
         modelProfessor.createProfessores(dados)          
         return jsonify(dados), 201
     
@@ -94,18 +32,6 @@ def createTurma():
     try:
         dados = request.json
 
-        vazio = verificar_campo_null(dados)
-        if vazio:
-            return vazio, 400
-        
-        professor_existente = next((professor for professor in dici["professor"] if professor["id"] == dados["professor_id"]), None)
-        if not professor_existente:
-            return jsonify({"error": "Professor não encontrado."}), 404
-        
-        duplicacao = verificar_duplicacao(dados['id'], dici["turma"], "Turma")
-        if duplicacao:
-            return duplicacao
-        
         modelTurma.createTurma(dados)
         return jsonify(dados), 201
         
@@ -162,20 +88,8 @@ def turma_Id(id_turma):
 def updateAlunos(idAluno):
     try:
         dados = request.json
-        
-        vazio = verificar_campo_null(dados)
-        if vazio:
-            return vazio, 400
-        
-        aluno = next((aluno for aluno in dici["alunos"] if aluno["id"] == idAluno), None)
-        if not aluno:
-            return jsonify({"error": "Aluno nao encontrado"}), 404
-        
-        duplicacao = verificar_duplicacao(dados['id'], dici["alunos"], "Aluno")
-        if duplicacao:
-            return duplicacao
-        
-        modelAluno.updateAluno(idAluno, dados)
+
+        aluno = modelAluno.updateAluno(idAluno, dados)
         return jsonify(aluno)
     
     except Exception as e:
@@ -185,20 +99,8 @@ def updateAlunos(idAluno):
 def updateProfessores(idProfessor):
     try:
         dados = request.json
-
-        vazio = verificar_campo_null(dados)
-        if vazio:
-            return vazio, 400
         
-        professor = next((professor for professor in dici["professor"] if professor["id"] == idProfessor), None)
-        if not professor:
-            return jsonify({"error": "Professor não encontrado"}), 404
-        
-        duplicacao = verificar_duplicacao(dados['id'], dici["professor"], "Professor")
-        if duplicacao:
-            return duplicacao
-        
-        modelProfessor.updateProfessor(idProfessor, dados)
+        professor = modelProfessor.updateProfessor(idProfessor, dados)
         return jsonify(professor)
     
     except Exception as e:
@@ -209,23 +111,9 @@ def updateTurma(idTurma):
     try:
         dados = request.json
 
-        vazio = verificar_campo_null(dados)
-        if vazio:
-            return vazio, 400
-        
-        turma = next((turma for turma in dici["turma"] if turma["id"] == idTurma), None)
-        if not turma:
-            return jsonify({"error": "Turma não encontrada"}), 404
-        
-        duplicacao = verificar_duplicacao(dados['id'], dici["turma"], "Turma")
-        if duplicacao:
-            return duplicacao
-        
-        
-        modelTurma.updateTurma(idTurma, dados)
+        turma = modelTurma.updateTurma(idTurma, dados)
         return jsonify(turma)
 
-    
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -241,8 +129,6 @@ def delete_aluno(idAluno):
         return ("Aluno não encontrado"), 404
     
     
-    
-        
 @app.route('/professor/<int:idProfessor>', methods=['DELETE'])
 def delete_professor(idProfessor):
     modelProfessor.deleteProfessor(idProfessor) 
