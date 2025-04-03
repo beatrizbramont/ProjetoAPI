@@ -1,4 +1,5 @@
-from app import verificar_campo_null, verificar_duplicacao
+from flask import Flask, jsonify, request
+
 
 dici = {
     "professor": [
@@ -12,12 +13,29 @@ dici = {
     ]
 }
 
+def verificar_duplicacao(id, lista, tipo):
+    if any(item['id'] == id for item in lista):
+        return jsonify({"error": f"{tipo} com ID {id} já existe."}), 400
+    return None
+
+def verificar_campo_null(dados):
+    for chave, valor in dados.items():
+        if valor == None:
+            return jsonify({"error": "O campo " + chave + " informado é obrigatório."})
+
 #CREATE
 
 def createProfessores(dados):
-   
-        dici['professor'].append(dados)
-        return True
+    vazio = verificar_campo_null(dados)
+    if vazio:
+        return vazio, 400
+        
+    duplicacao = verificar_duplicacao(dados['id'], dici["professor"], "Professor")
+    if duplicacao:
+        return duplicacao
+        
+    dici['professor'].append(dados)
+    return True
 
 #GET
 
@@ -35,6 +53,18 @@ def professor_porID(id_professor):
 #PUT 
 
 def updateProfessor(idProfessor, dados):
+    vazio = verificar_campo_null(dados)
+    if vazio:
+        return vazio, 400
+        
+    professor = next((professor for professor in dici["professor"] if professor["id"] == idProfessor), None)
+    if not professor:
+        return jsonify({"error": "Professor não encontrado"}), 404
+        
+    duplicacao = verificar_duplicacao(dados['id'], dici["professor"], "Professor")
+    if duplicacao:
+        return duplicacao
+    
     professor = professor_porID(idProfessor)
     if professor:
         professor.update(dados)
