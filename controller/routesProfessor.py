@@ -23,7 +23,7 @@ def getProfessor():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-@professor_bp.route('/professor/<int: id_professor>', methods=['GET'])
+@professor_bp.route('/professor/<int:id_professor>', methods=['GET'])
 def professor_Id(id_professor):
     try:
         modelProfessor.professor_porID(id_professor)
