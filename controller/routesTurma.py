@@ -25,7 +25,7 @@ def getTurma():
     except Exception as e:
         return jsonify ({"error": str(e)}), 500
 
-@turma_bp.route('/turma/<int: id_turma>', methods=['GET'])
+@turma_bp.route('/turma/<int:id_turma>', methods=['GET'])
 def turma_Id(id_turma):
     try:
         modelTurma.turmaPorID(id_turma)
