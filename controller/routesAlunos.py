@@ -23,7 +23,7 @@ def getAluno():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-@alunos_bp.route('/alunos/<int: idAluno>', methods=['GET'])
+@alunos_bp.route('/alunos/<int:idAluno>', methods=['GET'])
 def aluno_Id(id_aluno):
     try:
         modelAluno.alunoPorID(id_aluno)
