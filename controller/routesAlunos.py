@@ -8,10 +8,8 @@ alunos_bp = Blueprint('alunos', __name__) #Criando uma instância
 def createAluno():
     try:
         dados = request.json
-             
-        modelAluno.createAluno(dados)
-        return jsonify(dados), 201
-    
+        return modelAluno.createAluno(dados)
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
@@ -26,7 +24,7 @@ def getAluno():
 @alunos_bp.route('/alunos/<int:idAluno>', methods=['GET'])
 def aluno_Id(id_aluno):
     try:
-        modelAluno.alunoPorID(id_aluno)
+        return modelAluno.alunoPorID(id_aluno)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
@@ -35,9 +33,7 @@ def aluno_Id(id_aluno):
 def updateAlunos(idAluno):
     try:
         dados = request.json
-
-        aluno = modelAluno.updateAluno(idAluno, dados)
-        return jsonify(aluno)
+        return modelAluno.updateAluno(idAluno, dados)
     
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -45,9 +41,9 @@ def updateAlunos(idAluno):
 #Delete
 @alunos_bp.route('/alunos/<int:idAluno>', methods=['DELETE'])
 def delete_aluno(idAluno):
-    modelAluno.deleteAluno(idAluno) 
-    if modelAluno.deleteAluno() == True:
-        return jsonify("Aluno excluído com sucesso"), 200
+
+    if modelAluno.deleteAluno(idAluno) == True:
+        return jsonify ({"message": "Aluno excluído com sucesso"}), 200
     
     else:
-        return ("Aluno não encontrado"), 404
+        return jsonify({"message": "Aluno não encontrado"}), 404
