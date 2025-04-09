@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, request
+from models.modelTurma import turmaPorID
 
 dici = {
     "alunos": [
@@ -31,17 +32,17 @@ def createAluno(dados):
     vazio = verificar_campo_null(dados)
     if vazio:
         return vazio, 400
-        
-    turma_existente = next((turma for turma in dici["turma"] if turma["id"] == dados["turma_id"]), None)
-    if not turma_existente:
-        return jsonify({"error": "Turma não encontrada."}), 404
+    
+    turma_existente = turmaPorID(dados['turma_id'])
+    if turma_existente == False:
+        return jsonify({"error": "Turma não existe"}), 404
                 
     duplicacao = verificar_duplicacao(dados['id'], dici["alunos"], "Aluno")
     if duplicacao:
         return duplicacao
 
     dici['alunos'].append(dados)
-    return True
+    return jsonify(dados), 200
 
 # Get      
 def todosAlunos():
@@ -68,14 +69,16 @@ def updateAluno(idAluno, dados):
     if duplicacao:
         return duplicacao
             
-    aluno = alunoPorID(idAluno)
-    if aluno:
-        aluno.update(dados)
-        return aluno
-    
-    return False
+    aluno.update(dados)  # Atualiza os dados diretamente
+    return jsonify(aluno), 200
+    # aluno = alunoPorID(idAluno, dados)
+    # if aluno:
+    #     aluno.update(dados)
+    #     return jsonify(aluno), 200
+    # return jsonify({"error": "Erro ao atualizar o aluno"}), 500
 
 # Delete
+
 def deleteAluno(idAluno):
     aluno = alunoPorID(idAluno)
     if aluno:
