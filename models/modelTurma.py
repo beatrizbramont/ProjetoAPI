@@ -61,10 +61,6 @@ def updateTurma(idTurma, dados):
     turma = next((turma for turma in dici["turma"] if turma["id"] == idTurma), None)
     if not turma:
         return jsonify({"error": "Turma não encontrada"}), 404
-        
-    duplicacao = verificar_duplicacao(dados['id'], dici["turma"], "Turma")
-    if duplicacao:
-        return duplicacao
                 
     turma = turmaPorID(idTurma)
     if turma:
