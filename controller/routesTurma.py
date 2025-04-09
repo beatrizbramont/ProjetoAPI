@@ -11,7 +11,7 @@ def createTurma():
         dados = request.json
 
         modelTurma.createTurma(dados)
-        return jsonify(dados), 201
+        return jsonify(dados), 200
         
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -49,9 +49,8 @@ def updateTurma(idTurma):
 
 @turma_bp.route('/turma/<int:idTurma>', methods=['DELETE'])
 def delete_turma(idTurma):
-    modelTurma.deleteTurma(idTurma)
-    if modelTurma.deleteTurma() == True:
-        return jsonify({"Turma excluída com sucesso."}), 200
+    if modelTurma.deleteTurma(idTurma) == True:
+        return jsonify({"message": "Turma excluída com sucesso."}), 200
     else:
-        return jsonify({"Turma não encontrada."}), 404
+        return jsonify({"message": "Turma não encontrada."}), 404
 
