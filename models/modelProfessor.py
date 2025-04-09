@@ -61,9 +61,6 @@ def updateProfessor(idProfessor, dados):
     if not professor:
         return jsonify({"error": "Professor não encontrado"}), 404
         
-    duplicacao = verificar_duplicacao(dados['id'], dici["professor"], "Professor")
-    if duplicacao:
-        return duplicacao
     
     professor = professor_porID(idProfessor)
     if professor:
