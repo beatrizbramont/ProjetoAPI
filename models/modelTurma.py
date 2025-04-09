@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, request
+from models.modelProfessor import professor_porID
 
 dici = {
     "turma": [
@@ -28,9 +29,9 @@ def createTurma(dados):
     if vazio:
         return vazio, 400
         
-    professor_existente = next((professor for professor in dici["professor"] if professor["id"] == dados["professor_id"]), None)
-    if not professor_existente:
-        return jsonify({"error": "Professor não encontrado."}), 404
+    professor_existente = professor_porID(dados['professor_id'])
+    if professor_existente == False:
+        return jsonify({"error": "Professor não encontrado"}), 404
         
     duplicacao = verificar_duplicacao(dados['id'], dici["turma"], "Turma")
     if duplicacao:
