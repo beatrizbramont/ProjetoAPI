@@ -65,11 +65,7 @@ def updateAluno(idAluno, dados):
     if not aluno:
         return jsonify({"error": "Aluno nao encontrado"}), 404
             
-    duplicacao = verificar_duplicacao(dados['id'], dici["alunos"], "Aluno")
-    if duplicacao:
-        return duplicacao
-            
-    aluno.update(dados)  # Atualiza os dados diretamente
+    aluno.update(dados)  
     return jsonify(aluno), 200
     # aluno = alunoPorID(idAluno, dados)
     # if aluno:
