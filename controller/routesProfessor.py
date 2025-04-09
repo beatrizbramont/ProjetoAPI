@@ -10,7 +10,7 @@ def createProfessores():
         dados = request.json
 
         modelProfessor.createProfessores(dados)          
-        return jsonify(dados), 201
+        return jsonify(dados), 200
     
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -46,9 +46,8 @@ def updateProfessores(idProfessor):
    
 @professor_bp.route('/professor/<int:idProfessor>', methods=['DELETE'])
 def delete_professor(idProfessor):
-    modelProfessor.deleteProfessor(idProfessor) 
-    if modelProfessor.deleteProfessor() == True:
-        return jsonify("Professor excluído com sucesso"), 200
+    if modelProfessor.deleteProfessor(idProfessor) == True:
+        return jsonify({"message": "Professor excluído com sucesso"}), 200
     
     else:
-        return ("Professor não encontrado"), 404
+        return ({"message": "Professor não encontrado"}), 404
