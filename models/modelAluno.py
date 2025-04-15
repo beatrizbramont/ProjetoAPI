@@ -1,87 +1,118 @@
-from flask import Flask, jsonify, request
+from flask import jsonify
+from flask_sqlalchemy import SQLAlchemy
 from models.modelTurma import turmaPorID
+from config import db
 
-dici = {
-    "alunos": [
-        {
-            "id": 1,
-            "nome": "Nome do aluno",
-            "idade": 0,
-            "data_nascimento": "Data de nascimento",
-            "nota_primeiro_semestre": 0,
-            "nota_segundo_semestre": 0,
-            "media_final": 0,
-            "turma_id": 1
-        }
-    ]
-}
+class Aluno(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(100))
+    idade = db.Column(db.Integer)
+    data_nascimento = db.Column(db.Date)
+    nota_primeiro_semestre = db.Column(db.Float)
+    nota_segundo_semestre = db.Column(db.Float)
+    media_final = db.Column(db.Float)
+    turma_id = db.Column(db.Integer, db.ForeignKey('turma.id'))
 
-def verificar_duplicacao(id, lista, tipo):
-    if any(item['id'] == id for item in lista):
-        return jsonify({"error": f"{tipo} com ID {id} já existe."}), 400
+    turma = db.relationship('Turma', backref='alunos')
+
+    def __init__(self, nome, idade, data_nascimento, nota_primeiro_semestre, nota_segundo_semestre, media_final, turma_id):
+        self.nome = nome
+        self.idade = idade
+        self.data_nascimento = data_nascimento
+        self.nota_primeiro_semestre = nota_primeiro_semestre
+        self.nota_segundo_semestre = nota_segundo_semestre
+        self.media_final = media_final
+        self.turma_id = turma_id
+
+
+    def to_dict(self):
+        return {'id': self.id,
+                'nome': self.nome,
+                'idade': self.idade,
+                'data_nascimento': self.data_nascimento,
+                'nota_primeiro_semestre': self.nota_primeiro_semestre,
+                'nota_segundo_semestre': self.nota_segundo_semestre,
+                'media_final': self.media_final,
+                'turma_id': self.turma_id}
+
+def verificar_duplicacao(id):
+    if Aluno.query.get(id):
+        return jsonify({"error": f"Aluno com ID {id} já existe."}), 400
     return None
 
 def verificar_campo_null(dados):
     for chave, valor in dados.items():
         if valor == None:
-            return jsonify({"error": "O campo " + chave + " informado é obrigatório."})
+            return jsonify({"error": f"O campo" + chave + "informado é obrigatório."}), 400
+    return None
 
 # Create
 def createAluno(dados):    
-
     vazio = verificar_campo_null(dados)
     if vazio:
-        return vazio, 400
-    
+        return vazio
+
     turma_existente = turmaPorID(dados['turma_id'])
-    if turma_existente == False:
+    if not turma_existente:
         return jsonify({"error": "Turma não existe"}), 404
-                
-    duplicacao = verificar_duplicacao(dados['id'], dici["alunos"], "Aluno")
+
+    duplicacao = verificar_duplicacao(dados['id'])
     if duplicacao:
         return duplicacao
 
-    dici['alunos'].append(dados)
-    return jsonify(dados), 200
+    novo_aluno = Aluno(
+        nome=dados['nome'],
+        idade=dados['idade'],
+        data_nascimento=dados['data_nascimento'],
+        nota_primeiro_semestre=dados['nota_primeiro_semestre'],
+        nota_segundo_semestre=dados['nota_segundo_semestre'],
+        media_final=dados['media_final'],
+        turma_id=dados['turma_id']
+    )
+
+    db.session.add(novo_aluno)
+    db.session.commit()
+
+    return jsonify(novo_aluno.to_dict()), 200
 
 # Get      
 def todosAlunos():
-    return dici['alunos']
+    alunos = Aluno.query.all()
+    return jsonify([aluno.to_dict() for aluno in alunos]), 200
     
 def alunoPorID(idAluno):
-    lista_alunos = dici['alunos']
-    for aluno in lista_alunos:
-        if aluno['id'] == idAluno:
-            return aluno
-    return False
+    aluno = Aluno.query.get(idAluno)
+    if aluno:
+        return jsonify(aluno.to_dict()), 200
+    return jsonify({"error": "Aluno não encontrado"}), 404
 
 # Put
 def updateAluno(idAluno, dados):
     vazio = verificar_campo_null(dados)
     if vazio:
-        return vazio, 400
-            
-    aluno = next((aluno for aluno in dici["alunos"] if aluno["id"] == idAluno), None)
+        return vazio
+
+    aluno = Aluno.query.get(idAluno)
     if not aluno:
-        return jsonify({"error": "Aluno nao encontrado"}), 404
-            
-    aluno.update(dados)  
-    return jsonify(aluno), 200
-    # aluno = alunoPorID(idAluno, dados)
-    # if aluno:
-    #     aluno.update(dados)
-    #     return jsonify(aluno), 200
-    # return jsonify({"error": "Erro ao atualizar o aluno"}), 500
+        return jsonify({"error": "Aluno não encontrado"}), 404
+
+    for chave, valor in dados.items():
+        if hasattr(aluno, chave):
+            setattr(aluno, chave, valor)
+
+    db.session.commit()
+    return jsonify(aluno.to_dict()), 200
 
 # Delete
 
 def deleteAluno(idAluno):
-    aluno = alunoPorID(idAluno)
-    if aluno:
-        dici['alunos'].remove(aluno)
-        return True
-    
-    return False
+    aluno = Aluno.query.get(idAluno)
+    if not aluno:
+        return jsonify({"error": "Aluno não encontrado"}), 404
+
+    db.session.delete(aluno)
+    db.session.commit()
+    return jsonify({"message": "Aluno deletado com sucesso"}), 200
     
             
     
