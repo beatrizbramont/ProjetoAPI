@@ -1,26 +1,38 @@
-from flask import Flask, jsonify, request
+from flask import jsonify
 from models.modelProfessor import professor_porID
+from models.modelTurma import turmaPorID
+from flask_sqlalchemy import SQLAlchemy
+from config import db
 
-dici = {
-    "turma": [
-        {
-            "id": 1,
-            "descricao": "Descriçaõ da turma",
-            "professor_id": 1,
-            "ativo": "Status"
-        }
-    ]
-}
+class Turma(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    descricao = db.Column(db.String(100))
+    professor_id = db.Column(db.Integer)
+    ativo = db.Column(db.String(100))
 
-def verificar_duplicacao(id, lista, tipo):
-    if any(item['id'] == id for item in lista):
-        return jsonify({"error": f"{tipo} com ID {id} já existe."}), 400
+    alunos = db.relationship('Aluno', backref='turma', lazy=True) # errado
+    
+    def __init__(self, descricao, professor_id, ativo):
+        self.descricao = descricao
+        self.professor_id = professor_id
+        self.ativo = ativo
+
+    def to_dict(self):
+        return {'id': self.id, 
+                'descricao': self.descricao,
+                'professor_id': self.professor_id,
+                'ativo': self.ativo}
+
+
+def verificar_duplicacao(id):
+    if Turma.query.get(id):
+        return jsonify({"error": f"Turma com id {id} já existe."}), 400
     return None
 
 def verificar_campo_null(dados):
     for chave, valor in dados.items():
         if valor == None:
-            return jsonify({"error": "O campo " + chave + " informado é obrigatório."})
+            return jsonify({"error": "O campo " + chave + " informado é obrigatório."}), 400
         
 
 # CREATE
@@ -30,50 +42,58 @@ def createTurma(dados):
         return vazio, 400
         
     professor_existente = professor_porID(dados['professor_id'])
-    if professor_existente == False:
+    if not professor_existente:
         return jsonify({"error": "Professor não encontrado"}), 404
         
-    duplicacao = verificar_duplicacao(dados['id'], dici["turma"], "Turma")
+    duplicacao = verificar_duplicacao(dados['id'])
     if duplicacao:
         return duplicacao
         
-    dici['turma'].append(dados)
-    return True
+    nova_turma = Turma(
+        descricao=dados['descricao'],
+        professor_id=dados['professor_id'],
+        ativo=dados['ativo']
+    )
+
+    db.session.add(nova_turma)
+    db.session.commit()
+
+    return jsonify(nova_turma.to_dict()), 200
 
 # GET 
 def todasTurmas():
-    return dici['turma']
+    turmas = Turma.query.all()
+    return jsonify([turma.to_dict() for turma in turmas]), 200
  
 def turmaPorID(idTurma):
-    lista_turmas = dici['turma']
-    for turma in lista_turmas:
-        if turma['id'] == idTurma:
-            return turma
-        
-    return False
+    turma = Turma.query.get(idTurma)
+    if turma:
+        return jsonify(turma.to_dict()), 200
+    return jsonify({"error": "Turma não encontrada"}), 404
 
 # UPDATE 
 def updateTurma(idTurma, dados):
     vazio = verificar_campo_null(dados)
     if vazio:
-        return vazio, 400
-        
-    turma = next((turma for turma in dici["turma"] if turma["id"] == idTurma), None)
+        return vazio
+
+    turma = Turma.query.get(idTurma)
     if not turma:
         return jsonify({"error": "Turma não encontrada"}), 404
-                
-    turma = turmaPorID(idTurma)
-    if turma:
-        turma.update(dados)
-        return turma
-    return False
+
+    for chave, valor in dados.items():
+        if hasattr(turma, chave):
+            setattr(turma, chave, valor)
+
+    db.session.commit()
+    return jsonify(turma.to_dict()), 200
 
 # DELETE 
 def deleteTurma(idTurma):
-    turma = turmaPorID(idTurma)
-    if turma:
-        dici['turma'].remove(turma)
-        return True
-    
-    return False
+    turma = Turma.query.get(idTurma)
+    if not turma:
+        return jsonify({"error": "Turma não encontrada"}), 404
 
+    db.session.delete(turma)
+    db.session.commit()
+    return jsonify({"message": "Turma deletada com sucesso"}), 200
