@@ -1,7 +1,7 @@
 from flask import jsonify
-from flask_sqlalchemy import SQLAlchemy
 from models.modelTurma import turmaPorID
 from config import db
+from datetime import datetime
 
 class Aluno(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -11,9 +11,9 @@ class Aluno(db.Model):
     nota_primeiro_semestre = db.Column(db.Float)
     nota_segundo_semestre = db.Column(db.Float)
     media_final = db.Column(db.Float)
-    turma_id = db.Column(db.Integer, db.ForeignKey('turma.id'))
+    turma_id = db.Column(db.Integer, db.ForeignKey('turma.id'), nullable=False)
 
-    turma = db.relationship('Turma', backref='alunos')
+    turma = db.relationship('Turma', backref='Aluno')
 
     def __init__(self, nome, idade, data_nascimento, nota_primeiro_semestre, nota_segundo_semestre, media_final, turma_id):
         self.nome = nome
@@ -63,7 +63,7 @@ def createAluno(dados):
     novo_aluno = Aluno(
         nome=dados['nome'],
         idade=dados['idade'],
-        data_nascimento=dados['data_nascimento'],
+        data_nascimento=datetime.strptime(dados['data_nascimento'], "%d/%m/%Y"),
         nota_primeiro_semestre=dados['nota_primeiro_semestre'],
         nota_segundo_semestre=dados['nota_segundo_semestre'],
         media_final=dados['media_final'],
