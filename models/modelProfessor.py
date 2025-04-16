@@ -1,5 +1,4 @@
 from flask import jsonify
-from flask_sqlalchemy import SQLAlchemy
 from config import db
 
 class Professor(db.Model):
@@ -9,7 +8,7 @@ class Professor(db.Model):
     materia = db.Column(db.String(100))
     observacoes = db.Column(db.String(100))
 
-    turmas = db.relationship('Turma', backref='professor', lazy=True)
+    turmas = db.relationship('Turma', backref='Professor', lazy=True)
 
     def __init__(self, nome, idade, materia, observacoes):
         self.nome = nome
@@ -98,3 +97,4 @@ def deleteProfessor(idProfessor):
     db.session.commit()
     return jsonify({"message": "Professor deletado com sucesso"}), 200
     
+print(Professor.__table__)
