@@ -1,17 +1,15 @@
 from flask import jsonify
-from models.modelProfessor import professor_porID
-from models.modelTurma import turmaPorID
-from flask_sqlalchemy import SQLAlchemy
+# from models.modelProfessor import professorPorID
 from config import db
 
 class Turma(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     descricao = db.Column(db.String(100))
-    professor_id = db.Column(db.Integer)
+    professor_id = db.Column(db.Integer, db.ForeignKey('professor.id'), nullable=False)
     ativo = db.Column(db.String(100))
 
-    alunos = db.relationship('Aluno', backref='turma', lazy=True) # errado
-    
+    alunos = db.relationship('Aluno', backref='Turma', lazy=True) 
+
     def __init__(self, descricao, professor_id, ativo):
         self.descricao = descricao
         self.professor_id = professor_id
