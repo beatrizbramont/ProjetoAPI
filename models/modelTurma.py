@@ -1,5 +1,5 @@
 from flask import jsonify
-# from models.modelProfessor import professorPorID
+from models.modelProfessor import professorPorID
 from config import db
 
 class Turma(db.Model):
@@ -30,7 +30,7 @@ def verificar_duplicacao(id):
 def verificar_campo_null(dados):
     for chave, valor in dados.items():
         if valor == None:
-            return jsonify({"error": "O campo " + chave + " informado é obrigatório."}), 400
+            return jsonify({"error": f"O campo {chave} informado é obrigatório."}), 400
         
 
 # CREATE
@@ -39,7 +39,7 @@ def createTurma(dados):
     if vazio:
         return vazio, 400
         
-    professor_existente = professor_porID(dados['professor_id'])
+    professor_existente = professorPorID(dados['professor_id'])
     if not professor_existente:
         return jsonify({"error": "Professor não encontrado"}), 404
         
