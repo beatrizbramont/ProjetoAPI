@@ -15,13 +15,11 @@ with app.app_context():
         print(f"Coluna: {coluna['name']}, Tipo: {coluna['type']}")
 
 
-# Verificar se o arquivo do banco foi criado
-# print("Banco de dados criado?", os.path.exists("app.db"))
-# verificação das rotas
+
 # Criar uma função decodificação jwt - validação nas rotas - JWT
-# 1° Arrumar os testes
+# 3° Arrumar os testes
 # 2° JTW
-# 3° Docker (configuração)
+# 1° Docker (configuração)
 # 4° Deploy 
 # --------------------
 # - Passar para o MYSQL (Baixar e configurar)
@@ -29,3 +27,8 @@ with app.app_context():
 # - Deploy
 #Tem que criar um método para calcular idade (aluno) dentro da classe
 #relação many populations 
+
+
+'''--------------------------------------------------------------'''
+# docker build -t saladeaula . - cria imagem (imagem é uma receita para o container)
+# docker run -p 8001:8001 saladeaula professor - cria container
