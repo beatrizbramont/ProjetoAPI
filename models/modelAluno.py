@@ -1,7 +1,7 @@
 from flask import jsonify
 from models.modelTurma import turmaPorID
 from config import db
-from datetime import datetime
+from datetime import datetime #, date
 
 class Aluno(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -24,7 +24,12 @@ class Aluno(db.Model):
         self.media_final = media_final
         self.turma_id = turma_id
 
-
+    # def calcular_idade(self):
+    #     hoje = date.today()
+    #     nascimento = self.data_nascimento
+    #     idade = hoje.year - nascimento.year - ((hoje.month, hoje.day) < (nascimento.month, nascimento.day))
+    #     return idade
+    
     def to_dict(self):
         return {'id': self.id,
                 'nome': self.nome,
