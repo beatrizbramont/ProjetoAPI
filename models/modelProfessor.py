@@ -33,7 +33,7 @@ def verificar_duplicacao(id):
 def verificar_campo_null(dados):
     for chave, valor in dados.items():
         if valor == None:
-            return jsonify({"error": f"O campo" + chave + "informado é obrigatório."}), 400
+            return jsonify({"error": f"O campo {chave} informado é obrigatório."}), 400
     return None
 
 # Create
