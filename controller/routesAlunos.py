@@ -22,9 +22,9 @@ def getAluno():
         return jsonify({"error": str(e)}), 500
     
 @alunos_bp.route('/alunos/<int:idAluno>', methods=['GET'])
-def aluno_Id(id_aluno):
+def aluno_Id(idAluno):
     try:
-        return modelAluno.alunoPorID(id_aluno)
+        return modelAluno.alunoPorID(idAluno)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
