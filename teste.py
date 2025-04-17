@@ -27,3 +27,5 @@ with app.app_context():
 # - Passar para o MYSQL (Baixar e configurar)
 # - Mexer com o Docker
 # - Deploy
+#Tem que criar um método para calcular idade (aluno) dentro da classe
+#relação many populations 
