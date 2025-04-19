@@ -8,9 +8,8 @@ professor_bp = Blueprint('professor', __name__) #Criando uma instância
 def createProfessores():
     try:
         dados = request.json
-
-        professor = modelProfessor.createProfessor(dados)          
-        return professor
+        return modelProfessor.createProfessor(dados)          
+        
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
@@ -35,9 +34,8 @@ def updateProfessores(idProfessor):
     try:
         dados = request.json
         
-        professor = modelProfessor.updateProfessor(idProfessor, dados)
-        return jsonify(professor)
-    
+        professor_response, status_code =  modelProfessor.updateProfessor(idProfessor, dados)
+        return professor_response, status_code
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
