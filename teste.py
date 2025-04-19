@@ -19,16 +19,15 @@ with app.app_context():
 # Criar testes de integração com o banco
 # Swagger
 # Relatório
-# 3° Arrumar os testes
 # 4° Deploy 
+# relação many populations
 # --------------------
 # - Passar para o MYSQL (Baixar e configurar)
 # Criar uma função decodificação jwt - validação nas rotas - JWT
 # 2° JTW
 # - Mexer com o Docker
 # - Deploy
-#Tem que criar um método para calcular idade (aluno) dentro da classe
-#relação many populations 
+ 
 
 
 '''--------------------------------------------------------------'''
