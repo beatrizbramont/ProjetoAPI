@@ -25,10 +25,10 @@ class Professor(db.Model):
                 'observacoes': self.observacoes
                 }
 
-def verificar_duplicacao(id):
-    if Professor.query.get(id):
-        return jsonify({"error": f"Professor com ID {id} já existe."}), 400
-    return None
+# def verificar_duplicacao(id):
+#     if Professor.query.get(id):
+#         return jsonify({"error": f"Professor com ID {id} já existe."}), 200
+#     return None
 
 def verificar_campo_null(dados):
     for chave, valor in dados.items():
@@ -42,9 +42,9 @@ def createProfessor(dados):
     if vazio:
         return vazio
 
-    duplicacao = verificar_duplicacao(dados['id'])
-    if duplicacao:
-        return duplicacao
+    # duplicacao = verificar_duplicacao(dados['id'])
+    # if duplicacao:
+    #     return duplicacao
 
     novo_professor = Professor(
         nome=dados['nome'],
@@ -96,5 +96,4 @@ def deleteProfessor(idProfessor):
     db.session.delete(professor)
     db.session.commit()
     return jsonify({"message": "Professor deletado com sucesso"}), 200
-    
-print(Professor.__table__)
+ 
