@@ -40,10 +40,10 @@ class Aluno(db.Model):
                 'media_final': self.media_final,
                 'turma_id': self.turma_id}
 
-def verificar_duplicacao(id):
-    if Aluno.query.get(id):
-        return jsonify({"error": f"Aluno com ID {id} já existe."}), 400
-    return None
+# def verificar_duplicacao(id):
+#     if Aluno.query.get(id):
+#         return jsonify({"error": f"Aluno com ID {id} já existe."}), 200
+#     return None
 
 def verificar_campo_null(dados):
     for chave, valor in dados.items():
@@ -61,9 +61,9 @@ def createAluno(dados):
     if not turma_existente:
         return jsonify({"error": "Turma não existe"}), 404
 
-    duplicacao = verificar_duplicacao(dados['id'])
-    if duplicacao:
-        return duplicacao
+    # duplicacao = verificar_duplicacao(dados)
+    # if duplicacao:
+    #     return duplicacao
 
     novo_aluno = Aluno(
         nome=dados['nome'],
@@ -77,25 +77,26 @@ def createAluno(dados):
 
     db.session.add(novo_aluno)
     db.session.commit()
+    
 
     return jsonify(novo_aluno.to_dict()), 200
 
 # Get      
 def todosAlunos():
     alunos = Aluno.query.all()
-    return jsonify([aluno.to_dict() for aluno in alunos]), 200
+    return jsonify([aluno.to_dict() for aluno in alunos])
     
 def alunoPorID(idAluno):
     aluno = Aluno.query.get(idAluno)
     if aluno:
-        return jsonify(aluno.to_dict()), 200
-    return jsonify({"error": "Aluno não encontrado"}), 404
+        return jsonify(aluno.to_dict())
+    return jsonify({"error": "Aluno não encontrado"})
 
 # Put
 def updateAluno(idAluno, dados):
     vazio = verificar_campo_null(dados)
     if vazio:
-        return vazio
+        return vazio, 400
 
     aluno = Aluno.query.get(idAluno)
     if not aluno:
@@ -103,6 +104,11 @@ def updateAluno(idAluno, dados):
 
     for chave, valor in dados.items():
         if hasattr(aluno, chave):
+            if chave == 'data_nascimento' and isinstance(valor, str):
+                try:
+                    valor = datetime.strptime(valor, "%d/%m/%Y").date()
+                except ValueError:
+                    return jsonify({"error": "Formato de data inválido. Use DD/MM/AAAA"}), 400
             setattr(aluno, chave, valor)
 
     db.session.commit()
@@ -113,7 +119,7 @@ def updateAluno(idAluno, dados):
 def deleteAluno(idAluno):
     aluno = Aluno.query.get(idAluno)
     if not aluno:
-        return jsonify({"error": "Aluno não encontrado"}), 404
+        return jsonify({"error": "Aluno não encontrado"}), 400
 
     db.session.delete(aluno)
     db.session.commit()
