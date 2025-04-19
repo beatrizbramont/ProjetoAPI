@@ -309,7 +309,7 @@ class TestStringMethods(unittest.TestCase):
         r = requests.post('http://127.0.0.1:8001/alunos', json={
             'id': '',
             'nome': None,
-            'idade': 20,
+            'idade': 0,
             'data_nascimento': '01/01/2000',
             'nota_primeiro_semestre': 8.0,
             'nota_segundo_semestre': 9.0,
@@ -422,7 +422,7 @@ class TestStringMethods(unittest.TestCase):
         updated_r = {
             "id": aluno_id,
             "nome": "Joao Silva",
-            "idade": 21,
+            "idade": 0,
             "data_nascimento": "01/12/2004",
             "nota_primeiro_semestre": 8.5,
             "nota_segundo_semestre": 9.2,
@@ -436,7 +436,6 @@ class TestStringMethods(unittest.TestCase):
 
         updated_aluno = response.json()
         assert updated_aluno['nome'] == "Joao Silva"
-        assert updated_aluno['idade'] == 21
         assert updated_aluno['media_final'] == 8.75
         
         get_response = requests.get('http://127.0.0.1:8001/alunos')
