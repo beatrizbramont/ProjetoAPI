@@ -1,7 +1,7 @@
 from flask import jsonify
 from models.modelTurma import turmaPorID
 from config import db
-from datetime import datetime #, date
+from datetime import datetime, date
 
 class Aluno(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -15,20 +15,21 @@ class Aluno(db.Model):
 
     turma = db.relationship('Turma', backref='Aluno')
 
-    def __init__(self, nome, idade, data_nascimento, nota_primeiro_semestre, nota_segundo_semestre, media_final, turma_id):
+    def __init__(self, nome, data_nascimento, nota_primeiro_semestre, nota_segundo_semestre, media_final, turma_id):
         self.nome = nome
-        self.idade = idade
         self.data_nascimento = data_nascimento
+        self.idade = self.calcular_idade()
         self.nota_primeiro_semestre = nota_primeiro_semestre
         self.nota_segundo_semestre = nota_segundo_semestre
         self.media_final = media_final
         self.turma_id = turma_id
 
-    # def calcular_idade(self):
-    #     hoje = date.today()
-    #     nascimento = self.data_nascimento
-    #     idade = hoje.year - nascimento.year - ((hoje.month, hoje.day) < (nascimento.month, nascimento.day))
-    #     return idade
+    def calcular_idade(self):
+        hoje = date.today()
+        if self.data_nascimento:
+            idade = hoje.year - self.data_nascimento.year - ((hoje.month, hoje.day) < (self.data_nascimento.month, self.data_nascimento.day))
+            return idade
+        return None
     
     def to_dict(self):
         return {'id': self.id,
@@ -67,8 +68,7 @@ def createAluno(dados):
 
     novo_aluno = Aluno(
         nome=dados['nome'],
-        idade=dados['idade'],
-        data_nascimento=datetime.strptime(dados['data_nascimento'], "%d/%m/%Y"),
+        data_nascimento=datetime.strptime(dados['data_nascimento'], "%d/%m/%Y").date(),
         nota_primeiro_semestre=dados['nota_primeiro_semestre'],
         nota_segundo_semestre=dados['nota_segundo_semestre'],
         media_final=dados['media_final'],
@@ -110,6 +110,8 @@ def updateAluno(idAluno, dados):
                 except ValueError:
                     return jsonify({"error": "Formato de data inválido. Use DD/MM/AAAA"}), 400
             setattr(aluno, chave, valor)
+            if chave == 'data_nascimento':
+                aluno.idade = aluno.calcular_idade()
 
     db.session.commit()
     return jsonify(aluno.to_dict()), 200
