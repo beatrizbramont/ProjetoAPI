@@ -9,9 +9,7 @@ turma_bp = Blueprint('turma', __name__) #Criando uma instância
 def createTurma():
     try:
         dados = request.json
-
-        modelTurma.createTurma(dados)
-        return jsonify(dados), 200
+        return modelTurma.createTurma(dados)
         
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -28,7 +26,7 @@ def getTurma():
 @turma_bp.route('/turma/<int:id_turma>', methods=['GET'])
 def turma_Id(id_turma):
     try:
-        modelTurma.turmaPorID(id_turma)
+        return modelTurma.turmaPorID(id_turma)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
@@ -38,10 +36,8 @@ def turma_Id(id_turma):
 def updateTurma(idTurma):
     try:
         dados = request.json
-
-        turma = modelTurma.updateTurma(idTurma, dados)
-        return jsonify(turma)
-
+        turma_response, status_code = modelTurma.updateTurma(idTurma, dados)
+        return turma_response, status_code
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
@@ -49,8 +45,5 @@ def updateTurma(idTurma):
 
 @turma_bp.route('/turma/<int:idTurma>', methods=['DELETE'])
 def delete_turma(idTurma):
-    if modelTurma.deleteTurma(idTurma) == True:
-        return jsonify({"message": "Turma excluída com sucesso."}), 200
-    else:
-        return jsonify({"message": "Turma não encontrada."}), 404
+    return modelTurma.deleteTurma(idTurma)
 
