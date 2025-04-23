@@ -1,5 +1,5 @@
 import unittest
-
+from TDD.reseTestes import resetar_banco
 from TDD.testeAluno import AlunoTestStringMethods
 from TDD.testeProfessor import ProfessorTestStringMethods
 from TDD.testeTurma import TurmaTestStringMethods
@@ -15,7 +15,7 @@ def suite():
 
 
 if __name__ == '__main__':
-    # runTests()
+    resetar_banco()
     runner = unittest.TextTestRunner(verbosity=2)
     runner.run(suite())
 
