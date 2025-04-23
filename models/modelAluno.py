@@ -15,13 +15,13 @@ class Aluno(db.Model):
 
     turma = db.relationship('Turma', backref='Aluno')
 
-    def __init__(self, nome, data_nascimento, nota_primeiro_semestre, nota_segundo_semestre, media_final, turma_id):
+    def __init__(self, nome, data_nascimento, nota_primeiro_semestre, nota_segundo_semestre, turma_id):
         self.nome = nome
         self.data_nascimento = data_nascimento
         self.idade = self.calcular_idade()
         self.nota_primeiro_semestre = nota_primeiro_semestre
         self.nota_segundo_semestre = nota_segundo_semestre
-        self.media_final = media_final
+        self.media_final = self.calcular_media()
         self.turma_id = turma_id
 
     def calcular_idade(self):
@@ -30,6 +30,13 @@ class Aluno(db.Model):
             idade = hoje.year - self.data_nascimento.year - ((hoje.month, hoje.day) < (self.data_nascimento.month, self.data_nascimento.day))
             return idade
         return None
+    
+    def calcular_media(self):
+        soma_notas = self.nota_primeiro_semestre + self.nota_segundo_semestre
+        media = soma_notas / 2
+        return media
+
+    
     
     def to_dict(self):
         return {'id': self.id,
@@ -71,7 +78,6 @@ def createAluno(dados):
         data_nascimento=datetime.strptime(dados['data_nascimento'], "%d/%m/%Y").date(),
         nota_primeiro_semestre=dados['nota_primeiro_semestre'],
         nota_segundo_semestre=dados['nota_segundo_semestre'],
-        media_final=dados['media_final'],
         turma_id=dados['turma_id']
     )
 
@@ -112,6 +118,10 @@ def updateAluno(idAluno, dados):
             setattr(aluno, chave, valor)
             if chave == 'data_nascimento':
                 aluno.idade = aluno.calcular_idade()
+            if chave == 'nota_primeiro_semestre' or 'nota_segundo_semestre':
+                aluno.media_final = aluno.calcular_media()
+        
+    
 
     db.session.commit()
     return jsonify(aluno.to_dict()), 200
