@@ -1,7 +1,7 @@
 from flask import jsonify
 from models.modelTurma import turmaPorID
 from config import db
-from datetime import datetime
+from datetime import datetime, date
 
 class Aluno(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -15,16 +15,29 @@ class Aluno(db.Model):
 
     turma = db.relationship('Turma', backref='Aluno')
 
-    def __init__(self, nome, idade, data_nascimento, nota_primeiro_semestre, nota_segundo_semestre, media_final, turma_id):
+    def __init__(self, nome, data_nascimento, nota_primeiro_semestre, nota_segundo_semestre, turma_id):
         self.nome = nome
-        self.idade = idade
         self.data_nascimento = data_nascimento
+        self.idade = self.calcular_idade()
         self.nota_primeiro_semestre = nota_primeiro_semestre
         self.nota_segundo_semestre = nota_segundo_semestre
-        self.media_final = media_final
+        self.media_final = self.calcular_media()
         self.turma_id = turma_id
 
+    def calcular_idade(self):
+        hoje = date.today()
+        if self.data_nascimento:
+            idade = hoje.year - self.data_nascimento.year - ((hoje.month, hoje.day) < (self.data_nascimento.month, self.data_nascimento.day))
+            return idade
+        return None
+    
+    def calcular_media(self):
+        soma_notas = self.nota_primeiro_semestre + self.nota_segundo_semestre
+        media = soma_notas / 2
+        return media
 
+    
+    
     def to_dict(self):
         return {'id': self.id,
                 'nome': self.nome,
@@ -35,10 +48,10 @@ class Aluno(db.Model):
                 'media_final': self.media_final,
                 'turma_id': self.turma_id}
 
-def verificar_duplicacao(id):
-    if Aluno.query.get(id):
-        return jsonify({"error": f"Aluno com ID {id} já existe."}), 400
-    return None
+# def verificar_duplicacao(id):
+#     if Aluno.query.get(id):
+#         return jsonify({"error": f"Aluno com ID {id} já existe."}), 200
+#     return None
 
 def verificar_campo_null(dados):
     for chave, valor in dados.items():
@@ -56,41 +69,40 @@ def createAluno(dados):
     if not turma_existente:
         return jsonify({"error": "Turma não existe"}), 404
 
-    duplicacao = verificar_duplicacao(dados['id'])
-    if duplicacao:
-        return duplicacao
+    # duplicacao = verificar_duplicacao(dados)
+    # if duplicacao:
+    #     return duplicacao
 
     novo_aluno = Aluno(
         nome=dados['nome'],
-        idade=dados['idade'],
-        data_nascimento=datetime.strptime(dados['data_nascimento'], "%d/%m/%Y"),
+        data_nascimento=datetime.strptime(dados['data_nascimento'], "%d/%m/%Y").date(),
         nota_primeiro_semestre=dados['nota_primeiro_semestre'],
         nota_segundo_semestre=dados['nota_segundo_semestre'],
-        media_final=dados['media_final'],
         turma_id=dados['turma_id']
     )
 
     db.session.add(novo_aluno)
     db.session.commit()
+    
 
     return jsonify(novo_aluno.to_dict()), 200
 
 # Get      
 def todosAlunos():
     alunos = Aluno.query.all()
-    return jsonify([aluno.to_dict() for aluno in alunos]), 200
+    return jsonify([aluno.to_dict() for aluno in alunos])
     
 def alunoPorID(idAluno):
     aluno = Aluno.query.get(idAluno)
     if aluno:
-        return jsonify(aluno.to_dict()), 200
-    return jsonify({"error": "Aluno não encontrado"}), 404
+        return jsonify(aluno.to_dict())
+    return jsonify({"error": "Aluno não encontrado"})
 
 # Put
 def updateAluno(idAluno, dados):
     vazio = verificar_campo_null(dados)
     if vazio:
-        return vazio
+        return vazio, 400
 
     aluno = Aluno.query.get(idAluno)
     if not aluno:
@@ -98,7 +110,18 @@ def updateAluno(idAluno, dados):
 
     for chave, valor in dados.items():
         if hasattr(aluno, chave):
+            if chave == 'data_nascimento' and isinstance(valor, str):
+                try:
+                    valor = datetime.strptime(valor, "%d/%m/%Y").date()
+                except ValueError:
+                    return jsonify({"error": "Formato de data inválido. Use DD/MM/AAAA"}), 400
             setattr(aluno, chave, valor)
+            if chave == 'data_nascimento':
+                aluno.idade = aluno.calcular_idade()
+            if chave == 'nota_primeiro_semestre' or 'nota_segundo_semestre':
+                aluno.media_final = aluno.calcular_media()
+        
+    
 
     db.session.commit()
     return jsonify(aluno.to_dict()), 200
@@ -108,7 +131,7 @@ def updateAluno(idAluno, dados):
 def deleteAluno(idAluno):
     aluno = Aluno.query.get(idAluno)
     if not aluno:
-        return jsonify({"error": "Aluno não encontrado"}), 404
+        return jsonify({"error": "Aluno não encontrado"}), 400
 
     db.session.delete(aluno)
     db.session.commit()

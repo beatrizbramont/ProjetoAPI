@@ -21,12 +21,6 @@ class Turma(db.Model):
                 'professor_id': self.professor_id,
                 'ativo': self.ativo}
 
-
-def verificar_duplicacao(id):
-    if Turma.query.get(id):
-        return jsonify({"error": f"Turma com id {id} já existe."}), 400
-    return None
-
 def verificar_campo_null(dados):
     for chave, valor in dados.items():
         if valor == None:
@@ -37,37 +31,35 @@ def verificar_campo_null(dados):
 def createTurma(dados):
     vazio = verificar_campo_null(dados)
     if vazio:
-        return vazio, 400
+        return vazio
         
     professor_existente = professorPorID(dados['professor_id'])
     if not professor_existente:
         return jsonify({"error": "Professor não encontrado"}), 404
         
-    duplicacao = verificar_duplicacao(dados['id'])
-    if duplicacao:
-        return duplicacao
+    
         
     nova_turma = Turma(
         descricao=dados['descricao'],
         professor_id=dados['professor_id'],
         ativo=dados['ativo']
     )
-
+    
     db.session.add(nova_turma)
     db.session.commit()
-
+    
     return jsonify(nova_turma.to_dict()), 200
 
 # GET 
 def todasTurmas():
     turmas = Turma.query.all()
-    return jsonify([turma.to_dict() for turma in turmas]), 200
+    return jsonify([turma.to_dict() for turma in turmas])
  
 def turmaPorID(idTurma):
     turma = Turma.query.get(idTurma)
     if turma:
-        return jsonify(turma.to_dict()), 200
-    return jsonify({"error": "Turma não encontrada"}), 404
+        return jsonify(turma.to_dict())
+    return jsonify({"error": "Turma não encontrada"})
 
 # UPDATE 
 def updateTurma(idTurma, dados):
@@ -90,8 +82,8 @@ def updateTurma(idTurma, dados):
 def deleteTurma(idTurma):
     turma = Turma.query.get(idTurma)
     if not turma:
-        return jsonify({"error": "Turma não encontrada"}), 404
+        return jsonify({"error": "Turma não encontrada"}), 400
 
     db.session.delete(turma)
     db.session.commit()
-    return jsonify({"message": "Turma deletada com sucesso"}), 200
+    return jsonify({"message": "Turma deletada com sucesso."}), 200

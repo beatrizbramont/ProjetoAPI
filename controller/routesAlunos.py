@@ -41,9 +41,5 @@ def updateAlunos(idAluno):
 #Delete
 @alunos_bp.route('/alunos/<int:idAluno>', methods=['DELETE'])
 def delete_aluno(idAluno):
-
-    if modelAluno.deleteAluno(idAluno) == True:
-        return jsonify ({"message": "Aluno excluído com sucesso"}), 200
-    
-    else:
-        return jsonify({"message": "Aluno não encontrado"}), 404
+    return modelAluno.deleteAluno(idAluno)
+        
