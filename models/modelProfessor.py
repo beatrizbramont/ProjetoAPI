@@ -1,80 +1,99 @@
-from flask import Flask, jsonify, request
+from flask import jsonify
+from config import db
+
+class Professor(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(100))
+    idade = db.Column(db.Integer)
+    materia = db.Column(db.String(100))
+    observacoes = db.Column(db.String(100))
+
+    turmas = db.relationship('Turma', backref='Professor', lazy=True)
+
+    def __init__(self, nome, idade, materia, observacoes):
+        self.nome = nome
+        self.idade = idade
+        self.materia = materia
+        self.observacoes = observacoes
 
 
-dici = {
-    "professor": [
-        {
-            "id": 1,
-            "nome": "Nome do professor",
-            "idade": 0,
-            "materia": "Nome da materia",
-            "observacoes": "Observacao sobre o professor"
-        }
-    ]
-}
+    def to_dict(self):
+        return {'id': self.id,
+                'nome': self.nome,
+                'idade': self.idade,
+                'materia': self.materia,
+                'observacoes': self.observacoes
+                }
 
-def verificar_duplicacao(id, lista, tipo):
-    if any(item['id'] == id for item in lista):
-        return jsonify({"error": f"{tipo} com ID {id} já existe."}), 400
-    return None
+# def verificar_duplicacao(id):
+#     if Professor.query.get(id):
+#         return jsonify({"error": f"Professor com ID {id} já existe."}), 200
+#     return None
 
 def verificar_campo_null(dados):
     for chave, valor in dados.items():
         if valor == None:
-            return jsonify({"error": "O campo " + chave + " informado é obrigatório."})
+            return jsonify({"error": f"O campo {chave} informado é obrigatório."}), 400
+    return None
 
-#CREATE
-
-def createProfessores(dados):
+# Create
+def createProfessor(dados):    
     vazio = verificar_campo_null(dados)
     if vazio:
-        return vazio, 400
-        
-    duplicacao = verificar_duplicacao(dados['id'], dici["professor"], "Professor")
-    if duplicacao:
-        return duplicacao
-        
-    dici['professor'].append(dados)
-    return True
+        return vazio
 
-#GET
+    # duplicacao = verificar_duplicacao(dados['id'])
+    # if duplicacao:
+    #     return duplicacao
 
+    novo_professor = Professor(
+        nome=dados['nome'],
+        idade=dados['idade'],
+        materia=dados['materia'],
+        observacoes=dados['observacoes']
+    )
+
+    db.session.add(novo_professor)
+    db.session.commit()
+
+    return jsonify(novo_professor.to_dict()), 200
+
+# Get      
 def todosProfessores():
-      return dici['professor']
+    professores = Professor.query.all()
+    return jsonify([professor.to_dict() for professor in professores]), 200
+    
+def professorPorID(idProfessor):
+    professor = Professor.query.get(idProfessor)
+    if professor:
+        return jsonify(professor.to_dict()), 200
+    return jsonify({"error": "Professor não encontrado"}), 404
 
-def professor_porID(id_professor):
-    lista_professores = dici['professor']
-    for professor in lista_professores:
-          if professor['id'] == id_professor:
-                return professor
-    return False
-
-
-#PUT 
-
+# Put
 def updateProfessor(idProfessor, dados):
     vazio = verificar_campo_null(dados)
     if vazio:
-        return vazio, 400
-        
-    professor = next((professor for professor in dici["professor"] if professor["id"] == idProfessor), None)
+        return vazio
+
+    professor = Professor.query.get(idProfessor)
     if not professor:
         return jsonify({"error": "Professor não encontrado"}), 404
-        
-    
-    professor = professor_porID(idProfessor)
-    if professor:
-        professor.update(dados)
-        return professor
-    
-    return False
 
-#DELETE
+    for chave, valor in dados.items():
+        if hasattr(professor, chave):
+            setattr(professor, chave, valor)
+
+    db.session.commit()
+    return jsonify(professor.to_dict()), 200
+
+# Delete
 
 def deleteProfessor(idProfessor):
-    professor = professor_porID(idProfessor)
-    if professor:
-        dici['professor'].remove(professor)
-        return True
-    
-    return False
+    professor = Professor.query.get(idProfessor)
+    if not professor:
+        return jsonify({"error": "Professor não encontrado"}), 404
+
+    db.session.delete(professor)
+    db.session.commit()
+    return jsonify({"message": "Professor deletado com sucesso"}), 200
+ 

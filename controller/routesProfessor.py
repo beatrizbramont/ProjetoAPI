@@ -8,10 +8,8 @@ professor_bp = Blueprint('professor', __name__) #Criando uma instância
 def createProfessores():
     try:
         dados = request.json
-
-        modelProfessor.createProfessores(dados)          
-        return jsonify(dados), 200
-    
+        return modelProfessor.createProfessor(dados)          
+        
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
@@ -26,7 +24,7 @@ def getProfessor():
 @professor_bp.route('/professor/<int:id_professor>', methods=['GET'])
 def professor_Id(id_professor):
     try:
-        modelProfessor.professor_porID(id_professor)
+        return modelProfessor.professorPorID(id_professor)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
@@ -36,9 +34,8 @@ def updateProfessores(idProfessor):
     try:
         dados = request.json
         
-        professor = modelProfessor.updateProfessor(idProfessor, dados)
-        return jsonify(professor)
-    
+        professor_response, status_code =  modelProfessor.updateProfessor(idProfessor, dados)
+        return professor_response, status_code
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
@@ -46,8 +43,12 @@ def updateProfessores(idProfessor):
    
 @professor_bp.route('/professor/<int:idProfessor>', methods=['DELETE'])
 def delete_professor(idProfessor):
-    if modelProfessor.deleteProfessor(idProfessor) == True:
-        return jsonify({"message": "Professor excluído com sucesso"}), 200
-    
-    else:
-        return ({"message": "Professor não encontrado"}), 404
+    try:
+        result = modelProfessor.deleteProfessor(idProfessor)
+        if result:  # Se retornou um JSON de sucesso
+            return jsonify({"message": "Professor excluído com sucesso"}), 200
+        else:
+            return jsonify({"message": "Professor não encontrado"}), 404
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

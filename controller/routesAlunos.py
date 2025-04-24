@@ -22,9 +22,9 @@ def getAluno():
         return jsonify({"error": str(e)}), 500
     
 @alunos_bp.route('/alunos/<int:idAluno>', methods=['GET'])
-def aluno_Id(id_aluno):
+def aluno_Id(idAluno):
     try:
-        return modelAluno.alunoPorID(id_aluno)
+        return modelAluno.alunoPorID(idAluno)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
@@ -41,9 +41,5 @@ def updateAlunos(idAluno):
 #Delete
 @alunos_bp.route('/alunos/<int:idAluno>', methods=['DELETE'])
 def delete_aluno(idAluno):
-
-    if modelAluno.deleteAluno(idAluno) == True:
-        return jsonify ({"message": "Aluno excluído com sucesso"}), 200
-    
-    else:
-        return jsonify({"message": "Aluno não encontrado"}), 404
+    return modelAluno.deleteAluno(idAluno)
+        
