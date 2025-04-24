@@ -3,11 +3,14 @@ from config import app, db
 from controller.routesAlunos import alunos_bp
 from controller.routesProfessor import professor_bp
 from controller.routesTurma import turma_bp
+from Swagger.swagger_config import configure_swagger
 
 # Registrar os blueprints
 app.register_blueprint(alunos_bp)
 app.register_blueprint(professor_bp)
 app.register_blueprint(turma_bp)
+
+configure_swagger(app)
 
 with app.app_context():
     db.create_all()
