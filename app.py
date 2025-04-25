@@ -13,6 +13,7 @@ app.register_blueprint(turma_bp)
 configure_swagger(app)
 
 with app.app_context():
+    db.drop_all()
     db.create_all()
     
 
