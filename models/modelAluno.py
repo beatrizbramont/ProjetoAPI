@@ -4,6 +4,7 @@ from config import db
 from datetime import datetime, date
 
 class Aluno(db.Model):
+    __tablename__ = 'Aluno'
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(100))
     idade = db.Column(db.Integer)
@@ -11,7 +12,7 @@ class Aluno(db.Model):
     nota_primeiro_semestre = db.Column(db.Float)
     nota_segundo_semestre = db.Column(db.Float)
     media_final = db.Column(db.Float)
-    turma_id = db.Column(db.Integer, db.ForeignKey('turma.id'), nullable=False)
+    turma_id = db.Column(db.Integer, db.ForeignKey('Turma.id'), nullable=False)
 
     turma = db.relationship('Turma', backref='Aluno')
 
@@ -115,11 +116,11 @@ def updateAluno(idAluno, dados):
                     valor = datetime.strptime(valor, "%d/%m/%Y").date()
                 except ValueError:
                     return jsonify({"error": "Formato de data inválido. Use DD/MM/AAAA"}), 400
-            setattr(aluno, chave, valor)
-            if chave == 'data_nascimento':
-                aluno.idade = aluno.calcular_idade()
-            if chave == 'nota_primeiro_semestre' or 'nota_segundo_semestre':
-                aluno.media_final = aluno.calcular_media()
+        setattr(aluno, chave, valor)
+        if chave == 'data_nascimento':
+            aluno.idade = aluno.calcular_idade()
+        if chave == 'nota_primeiro_semestre' or 'nota_segundo_semestre':
+            aluno.media_final = aluno.calcular_media()
         
     
 
