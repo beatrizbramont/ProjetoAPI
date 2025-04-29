@@ -4,18 +4,16 @@ import requests
 class TurmaTestStringMethods(unittest.TestCase): 
     def test_criar_turma(self):
         r = requests.post('http://127.0.0.1:8001/turma', json={
-            'id':2,
             'descricao':'Desenvolvimento de APIs',
-            'professor_id':2, 
+            'professor_id':4, 
             'ativo': "Ativo"})
         
         if r.status_code != 200:
             self.fail(f"Erro ao criar turma Desenvolvimento de APIs. Status Code: {r.status_code}")
         
         r = requests.post('http://127.0.0.1:8001/turma', json={
-            'id':3,
             'descricao':'Matemática Aplicada',
-            'professor_id':2, 
+            'professor_id':5, 
             'ativo': "Ativo"})
             
         if r.status_code != 200:
@@ -42,7 +40,7 @@ class TurmaTestStringMethods(unittest.TestCase):
     def test_update_turma_successo(self):
         r = requests.post('http://127.0.0.1:8001/turma', json={ 
             "descricao": "Desenvolvimento Mobile",
-            "professor_id": 1,
+            "professor_id": 5,
             "ativo": "Ativo"
         })
 
@@ -73,7 +71,6 @@ class TurmaTestStringMethods(unittest.TestCase):
         requests.delete('http://127.0.0.1:8001/turma/4')
 
         r = requests.post('http://127.0.0.1:8001/turma', json={
-            'id': 4,
             'descricao': 'Literatura Portuguesa',
             'professor_id': 1,
             'ativo': "Ativo"
