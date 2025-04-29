@@ -43,10 +43,6 @@ def createProfessor(dados):
     if vazio:
         return vazio
 
-    # duplicacao = verificar_duplicacao(dados['id'])
-    # if duplicacao:
-    #     return duplicacao
-
     novo_professor = Professor(
         nome=dados['nome'],
         idade=dados['idade'],
