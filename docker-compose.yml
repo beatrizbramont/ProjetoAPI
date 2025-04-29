@@ -1,28 +1,40 @@
 version: '3.8'
 
-networks:
-  web_network:
-    driver: overlay
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_container
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: BIsa0322%400405
+      MYSQL_DATABASE: escola
+      TZ: America/Sao_Paulo
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-pBIsa0322%400405"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    container_name: flask_app
+    restart: always
+    ports:
+      - "8001:8001"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: escola
+      DB_USER: root
+      DB_PASSWORD: BIsa0322@0405
+      FLASK_ENV: development
 
 volumes:
-  site_conf:
-
-services:
-  web-server:
-    image: httpd:latest
-    ports: "80:80"
-    deploy:
-      placement:
-        constraints:
-          - "node.role==worker"
-      mode: replicated
-      replicas: 2
-      resource:
-        cpus: "0.50"
-        memory: 256M
-    restart: always
-    networks:
-      - web_network
-    volumes:
-      - /dir/site/html:/var/www/html
-      - site_conf:/etc/httpd
+  mysql_data:
