@@ -4,7 +4,6 @@ import requests
 class ProfessorTestStringMethods(unittest.TestCase):   
     def test_criar_professor(self):
         r = requests.post('http://127.0.0.1:8001/professor', json={
-            'id':2,
             'nome':'Caio',
             'idade':26, 
             'materia': "Desenvolvimento de APIs",
@@ -13,9 +12,9 @@ class ProfessorTestStringMethods(unittest.TestCase):
             
         if r.status_code != 200:
             self.fail(f"Erro ao criar professor Caio. Status Code: {r.status_code}")
+        print(r.content)
 
         r = requests.post('http://127.0.0.1:8001/professor', json={
-            'id':3,
             'nome':'Mariana',
             'idade':26, 
             'materia': "Matemática Aplica",
@@ -77,7 +76,6 @@ class ProfessorTestStringMethods(unittest.TestCase):
 
     def test_delete_professor(self): 
         r = requests.post('http://127.0.0.1:8001/professor', json={
-            'id':8,
             'nome':'Alessandra',
             'idade':63, 
             'materia': "Geografia",
