@@ -15,7 +15,7 @@ class TurmaTestStringMethods(unittest.TestCase):
         r = requests.post('http://127.0.0.1:8001/turma', json={
             'id':3,
             'descricao':'Matemática Aplicada',
-            'professor_id':3, 
+            'professor_id':2, 
             'ativo': "Ativo"})
             
         if r.status_code != 200:
@@ -75,7 +75,7 @@ class TurmaTestStringMethods(unittest.TestCase):
         r = requests.post('http://127.0.0.1:8001/turma', json={
             'id': 4,
             'descricao': 'Literatura Portuguesa',
-            'professor_id': 3,
+            'professor_id': 1,
             'ativo': "Ativo"
         })
         if r.status_code != 200:
