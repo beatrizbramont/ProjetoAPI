@@ -4,7 +4,7 @@ Projeto Flask
 
 # Objetivo
 
-Este projeto tem como objetivo apresentar a eficiência do framework Flask na linguagem Python, colocando em prática conceitos como Interface de Programação de Aplicações (API 's), dicionários, programação orientada a objetos, TDD (Test-Driven Development) e MVC.
+Este projeto tem como objetivo apresentar a eficiência do framework Flask na linguagem Python, colocando em prática conceitos como Interface de Programação de Aplicações (API 's), dicionários, programação orientada a objetos, TDD (Test-Driven Development), MVC, Banco de Dados SQLite e Docker.
 
 # Status
 
