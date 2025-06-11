@@ -110,7 +110,7 @@ A aplicação estará disponível em:
 ## 📦 Estrutura do Projeto
 
 ```
-reserva-de-salas-flask/
+ProjetoAPI/
 │
 ├── controller/
 │   └── routesAlunos.py   
